@@ -77,27 +77,37 @@ public class XMLScriptBuilder extends BaseBuilder {
   protected MixedSqlNode parseDynamicTags(XNode node) {
     List<SqlNode> contents = new ArrayList<>();
     NodeList children = node.getNode().getChildNodes();
+    // TODO 获取SQL标签下的所有节点，包括标签节点和文本节点
     for (int i = 0; i < children.getLength(); i++) {
       XNode child = node.newXNode(children.item(i));
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
+        // TODO 处理文本节点，也就是SQL语句
         String data = child.getStringBody("");
         TextSqlNode textSqlNode = new TextSqlNode(data);
+        // TODO 解析SQL语句，如果含有未解析的"${}"占位符，则为动态SQL
         if (textSqlNode.isDynamic()) {
           contents.add(textSqlNode);
+          // TODO 标记为动态SQL语句
           isDynamic = true;
         } else {
           contents.add(new StaticTextSqlNode(data));
         }
-      } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628
+      }
+      // TODO issue #628
+      else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) {
+        // TODO 如果解析到一个子标签，那么一定是动态SQL
+        // TODO 这里会根据不同的标签，获取不同的NodeHandler，然后由NodeHandler进行后续解析
         String nodeName = child.getNode().getNodeName();
         NodeHandler handler = nodeHandlerMap.get(nodeName);
         if (handler == null) {
           throw new BuilderException("Unknown element <" + nodeName + "> in SQL statement.");
         }
+        // TODO 处理动态SQL语句，并将解析得到的SqlNode对象记录到contents集合中
         handler.handleNode(child, contents);
         isDynamic = true;
       }
     }
+    // TODO 解析后的SqlNode集合将会被封装成MixedSqlNode返回
     return new MixedSqlNode(contents);
   }
 
@@ -188,8 +198,11 @@ public class XMLScriptBuilder extends BaseBuilder {
 
     @Override
     public void handleNode(XNode nodeToHandle, List<SqlNode> targetContents) {
+      // TODO 递归调用解析动态标签方法
       MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);
+      // TODO 获取到 test 属性内容
       String test = nodeToHandle.getStringAttribute("test");
+      // TODO 构建 if 标签节点
       IfSqlNode ifSqlNode = new IfSqlNode(mixedSqlNode, test);
       targetContents.add(ifSqlNode);
     }

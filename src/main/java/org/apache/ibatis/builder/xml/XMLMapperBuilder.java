@@ -113,11 +113,17 @@ public class XMLMapperBuilder extends BaseBuilder {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       builderAssistant.setCurrentNamespace(namespace);
+      // TODO 解析 cache-ref 标签
       cacheRefElement(context.evalNode("cache-ref"));
+      // TODO 解析 cache 标签
       cacheElement(context.evalNode("cache"));
+      // TODO 解析 parameterMap 标签
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      // TODO 解析 resultMap 标签
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      // TODO 解析 sql 标签
       sqlElement(context.evalNodes("/mapper/sql"));
+      //TODO 解析 Mapper 下的 select、insert、update、delete 标签
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -199,17 +205,26 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // TODO 解析二级缓存标签
+  // TODO  二级缓存是事务性的。这意味着，当 SqlSession 完成并提交时，或是完成并回滚，但没有执行 flushCache=true 的 insert/delete/update 语句时，缓存会获得更新。
   private void cacheElement(XNode context) {
     if (context != null) {
+      // TODO 获取当前缓存类型(默认：PerpetualCache)
       String type = context.getStringAttribute("type", "PERPETUAL");
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      // TODO 获取当前缓存策略(默认: LRU)
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      // TODO 获取缓存的刷新频率
       Long flushInterval = context.getLongAttribute("flushInterval");
+      // TODO 获取缓存的容量
       Integer size = context.getIntAttribute("size");
+      // TODO 返回的缓存对象是否只读
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+      // TODO
       boolean blocking = context.getBooleanAttribute("blocking", false);
       Properties props = context.getChildrenAsProperties();
+      // TODO 创建缓存对象
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }

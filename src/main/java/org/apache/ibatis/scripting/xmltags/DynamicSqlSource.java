@@ -22,6 +22,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Clinton Begin
+ * 动态SQL 处理
  */
 public class DynamicSqlSource implements SqlSource {
 
